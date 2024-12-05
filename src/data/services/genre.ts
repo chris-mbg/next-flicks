@@ -25,7 +25,7 @@ export const getGenres = async (): Promise<Genre[]> => {
 
     return data.genres as Genre[]
   } catch (err) {
-    console.error('Error when fetching genres')
+    console.error('Error when fetching genres', err)
     return []
   }
 }

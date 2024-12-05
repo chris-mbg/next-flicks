@@ -4,7 +4,7 @@ import { Genre } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { use } from 'react'
+import { use, useOptimistic, useTransition } from 'react'
 
 type Props = {
   genresPromise: Promise<Genre[]>
@@ -16,11 +16,17 @@ export default function GenreFilter({ genresPromise }: Props) {
   const router = useRouter()
   const selectedGenres = searchParams.getAll('with_genres')
 
+  const [isPending, startTransition] = useTransition()
+  const [optimisticGenres, setOptimisticGenres] = useOptimistic(searchParams.getAll('with_genres'))
+
   const onToggle = (newGenres: string[]) => {
     const params = new URLSearchParams(searchParams)
     params.delete('with_genres')
     newGenres.forEach((genreId) => params.append('with_genres', genreId))
-    router.push(`?${params.toString()}`)
+    startTransition(() => {
+      setOptimisticGenres(newGenres)
+      router.push(`?${params.toString()}`)
+    })
   }
 
   return (
@@ -28,9 +34,12 @@ export default function GenreFilter({ genresPromise }: Props) {
       <ToggleGroup
         toggleKey="with_genres"
         options={genres.map((genre) => ({ label: genre.name, value: genre.id.toString() }))}
-        selectedValues={selectedGenres}
+        selectedValues={optimisticGenres}
         onToggle={onToggle}
       />
+      {isPending && (
+        <span className="inline-block h-6 w-6 border-4 border-pink-400 border-t-slate-100 rounded-full animate-spin my-4"></span>
+      )}
     </div>
   )
 }
