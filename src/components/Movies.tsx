@@ -1,17 +1,12 @@
-export default async function Movies() {
-  const data = await fetch('https://api.themoviedb.org/3/movie/top_rated', {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${process.env.TMDB_AUTH_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-  })
-  const movies = await data.json()
+import { Movie } from '@/lib/types'
+import MovieCard from './MovieCard'
 
+export default async function MovieList({ movieList }: { movieList: Movie[] }) {
   return (
-    <div>
-      <h1>Movies::</h1>
-      {JSON.stringify(movies)}
+    <div className="grid grid-cols-[repeat(auto-fill,_250px)] gap-4 mt-8">
+      {movieList.map((movie) => (
+        <MovieCard key={movie.id} movie={movie} />
+      ))}
     </div>
   )
 }

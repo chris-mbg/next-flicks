@@ -14,15 +14,16 @@ export default function GenreFilter({ genresPromise }: Props) {
   const genres = use(genresPromise)
   const searchParams = useSearchParams()
   const router = useRouter()
-  const selectedGenres = searchParams.getAll('with_genres')
+  const selectedGenres = searchParams.getAll('genre')
 
   const [isPending, startTransition] = useTransition()
-  const [optimisticGenres, setOptimisticGenres] = useOptimistic(searchParams.getAll('with_genres'))
+  const [optimisticGenres, setOptimisticGenres] = useOptimistic(searchParams.getAll('genre'))
 
   const onToggle = (newGenres: string[]) => {
     const params = new URLSearchParams(searchParams)
-    params.delete('with_genres')
-    newGenres.forEach((genreId) => params.append('with_genres', genreId))
+    params.delete('genre')
+    newGenres.forEach((genreId) => params.append('genre', genreId))
+    params.set('page', '1')
     startTransition(() => {
       setOptimisticGenres(newGenres)
       router.push(`?${params.toString()}`)
@@ -32,7 +33,7 @@ export default function GenreFilter({ genresPromise }: Props) {
   return (
     <div>
       <ToggleGroup
-        toggleKey="with_genres"
+        toggleKey="genre"
         options={genres.map((genre) => ({ label: genre.name, value: genre.id.toString() }))}
         selectedValues={optimisticGenres}
         onToggle={onToggle}

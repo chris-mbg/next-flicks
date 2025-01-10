@@ -5,15 +5,16 @@ import { createContext, ReactNode, useContext, useOptimistic, useTransition } fr
 import { z } from 'zod'
 
 const filterSchema = z.object({
-  with_genres: z.array(z.string()).default([]).optional(),
+  genre: z.array(z.string()).default([]).optional(),
   query: z.string().default('').optional(),
+  page: z.string().default('1').optional(),
 })
 
 type Filters = z.infer<typeof filterSchema>
 type FilterContextType = {
   filters: Filters
   isPending: boolean
-  updateFilters: (_updates: Partial<Filters>) => void
+  updateFilters: (updates: Partial<Filters>) => void
 }
 
 export const FilterContext = createContext<FilterContextType | undefined>(undefined)
@@ -22,8 +23,9 @@ export default function FilterProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const filters = filterSchema.safeParse({
-    with_genres: searchParams.getAll('with_genres'),
+    genre: searchParams.getAll('genre'),
     query: searchParams.get('query') ?? undefined,
+    page: searchParams.get('page') ?? 1,
   })
 
   const [isPending, startTransition] = useTransition()
